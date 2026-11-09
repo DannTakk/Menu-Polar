@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polar Stream - Menú de Servicios</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      /* Background azul celeste con matices blancos y degradados */
+      background: radial-gradient(circle at 50% 20%, #e0f2fe 0%, #bae6fd 35%, #7dd3fc 70%, #38bdf8 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, .font-heading {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Degradados de luz ambiental */
+    .sky-glow-1 {
+      position: absolute;
+      top: -10%;
+      left: 15%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 70%);
+      pointer-events: none;
+      filter: blur(40px);
+    }
+    
+    .sky-glow-2 {
+      position: absolute;
+      bottom: -10%;
+      right: 10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 70%);
+      pointer-events: none;
+      filter: blur(50px);
+    }
+
+    /* Glowing Text Effects */
+    .glow-text-cyan {
+      color: #7dd3fc;
+      text-shadow: 0 0 12px rgba(56, 189, 248, 0.8), 0 0 24px rgba(14, 165, 233, 0.5);
+    }
+
+    .glow-text-gold {
+      color: #fbbf24;
+      text-shadow: 0 0 12px rgba(245, 158, 11, 0.8), 0 0 25px rgba(217, 119, 6, 0.5);
+    }
+
+    .glow-text-white {
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 20px rgba(186, 230, 253, 0.6);
+    }
+
+    /* Perspective Container */
+    .book-stage {
+      perspective: 1800px;
+      perspective-origin: 50% 50%;
+    }
+
+    /* Book Wrapper - Fixed strictly in the absolute center */
+    .book-wrapper {
+      position: relative;
+      width: 340px;
+      height: 520px;
+      transform-style: preserve-3d;
+    }
+
+    @media (min-width: 640px) {
+      .book-wrapper {
+        width: 380px;
+        height: 560px;
+      }
+    }
+
+    /* No horizontal translation on wrapper so the right page stays 100% stationary in center */
+    .book-wrapper.is-open {
+      transform: none;
+    }
+
+    /* Cover (Left Door) overlaying the right base exactly */
+    .book-cover-left {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #090d16 0%, #0f172a 60%, #030712 100%);
+      border-radius: 4px 16px 16px 4px;
+      transform-origin: left center;
+      transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.8s ease;
+      transform-style: preserve-3d;
+      z-index: 20;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset -2px 0 5px rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .book-wrapper.is-open .book-cover-left {
+      transform: rotateY(-180deg);
+      border-radius: 16px 4px 4px 16px;
+      box-shadow: -15px 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Inside Left Cover back side */
+    .cover-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: linear-gradient(135deg, #0b1329 0%, #090d16 100%);
+      border-radius: 16px 4px 4px 16px;
+      transform: rotateY(180deg);
+      backface-visibility: hidden;
+      border: 1px solid rgba(56, 189, 248, 0.15);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .cover-front {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2.5rem 1.5rem;
+      border-radius: 4px 16px 16px 4px;
+    }
+
+    /* Right Base Stack (Behind the book cover) */
+    .book-right-base {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0f172a;
+      border-radius: 4px 16px 16px 4px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    /* Pages Styling */
+    .page-sheet {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0b1120 0%, #070a12 100%);
+      border-radius: 4px 16px 16px 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 2rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0;
+      pointer-events: none;
+      transform: rotateY(15deg) scale(0.96);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: inset -5px 0 15px rgba(0,0,0,0.5), 5px 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .page-sheet.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: rotateY(0deg) scale(1);
+      z-index: 10;
+    }
+
+    /* Ribbon / Edge details */
+    .gold-border-box {
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      position: relative;
+    }
+
+    .gold-border-box::before {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border: 1px dashed rgba(56, 189, 248, 0.15);
+      pointer-events: none;
+    }
+
+    /* Shimmer effect for buttons */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .shimmer-btn {
+      background: linear-gradient(90deg, #0284c7 0%, #38bdf8 50%, #0284c7 100%);
+      background-size: 200% 100%;
+      animation: shimmer 3s infinite;
+    }
+
+    /* Spine effect */
+    .spine-shadow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 16px;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%);
+      z-index: 30;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-between p-4 md:p-6 select-none">
+
+  <!-- Light Ambient Effects -->
+  <div class="sky-glow-1"></div>
+  <div class="sky-glow-2"></div>
+
+  <!-- HEADER BRANDING / PAGE COUNTER -->
+  <header class="w-full max-w-4xl flex justify-between items-center z-10 mb-2">
+    <div class="flex items-center gap-2 bg-white/40 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/60 shadow-sm">
+      <span class="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-pulse"></span>
+      <span class="text-xs font-bold text-sky-950 uppercase tracking-widest">Polar Stream Menu</span>
+    </div>
+
+    <!-- Page Indicator -->
+    <div id="pageIndicator" class="opacity-0 transition-opacity duration-500 bg-slate-900/80 backdrop-blur-md text-cyan-300 px-4 py-1.5 rounded-full text-xs font-semibold border border-cyan-500/30 shadow-lg flex items-center gap-2">
+      <i class="fa-solid font-bold fa-book-open text-sky-400"></i>
+      <span>Página <span id="currentPageNum" class="text-white font-bold">1</span> de 8</span>
+    </div>
+  </header>
+
+  <!-- MAIN INTERACTIVE BOOK STAGE -->
+  <main class="book-stage flex-1 flex items-center justify-center w-full my-4">
+    <div id="bookWrapper" class="book-wrapper">
+
+      <!-- LEFT COVER (Folds Open) -->
+      <div id="bookCoverLeft" class="book-cover-left cursor-pointer" onclick="toggleCover()">
+        
+        <!-- COVER FRONT -->
+        <div class="cover-front gold-border-box rounded-xl">
+          <!-- Top Ornament -->
+          <div class="flex items-center gap-2 text-cyan-400/60 text-xs tracking-widest uppercase mt-2">
+            <span>★</span><span>EDICIÓN PREMIUM</span><span>★</span>
+          </div>
+
+          <!-- Center Branding Content -->
+          <div class="flex flex-col items-center text-center my-auto w-full px-2">
+            
+            <!-- Header Icon Section: Styled Polar Bear & Classic Film Camera -->
+            <div class="flex items-center justify-center gap-3 mb-4 text-cyan-400">
+              <!-- New Modern Stylized Polar Bear Vector SVG -->
+              <svg class="w-8 h-8 md:w-9 md:h-9 filter drop-shadow-[0_0_10px_rgba(56,189,248,0.7)]" viewBox="0 0 512 512" fill="currentColor">
+                <path d="M256,32 C180,32 120,80 100,140 C80,145 60,165 60,195 C60,225 80,245 105,248 C100,270 100,300 110,330 C125,375 160,440 210,470 C225,479 240,480 256,480 C272,480 287,479 302,470 C352,440 387,375 402,330 C412,300 412,270 407,248 C432,245 452,225 452,195 C452,165 432,145 412,140 C392,80 332,32 256,32 Z M170,180 C186.5,180 200,193.5 200,210 C200,226.5 186.5,240 170,240 C153.5,240 140,226.5 140,210 C140,193.5 153.5,180 170,180 Z M342,180 C358.5,180 372,193.5 372,210 C372,226.5 358.5,240 342,240 C325.5,240 312,226.5 312,210 C312,193.5 325.5,180 342,180 Z M256,260 C290,260 315,280 315,310 C315,335 290,350 256,350 C222,350 197,335 197,310 C197,280 222,260 256,260 Z"/>
+              </svg>
+              
+              <span class="text-xs text-sky-400/40 font-light">|</span>
+
+              <!-- Classic Vintage Film Camera SVG -->
+              <svg class="w-8 h-8 md:w-9 md:h-9 filter drop-shadow-[0_0_10px_rgba(56,189,248,0.7)]" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4h-2l2 4h-3l-2-4H7L5 8H2c-1.1 0-2 .9-2 2v9c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2V4h-6zM12 17c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/>
+              </svg>
+            </div>
+
+            <!-- Main Title: Polar Stream -->
+            <h1 class="text-3xl md:text-4xl font-black uppercase tracking-wider glow-text-cyan mb-1">
+              POLAR STREAM
+            </h1>
+            <p class="text-xs text-sky-200/70 tracking-widest uppercase font-semibold">Menú de Entretenimiento</p>
+
+            <!-- Divider Line -->
+            <div class="w-24 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent my-5"></div>
+
+            <p class="text-xs text-slate-400 max-w-[220px] leading-relaxed">
+              Disfruta de tus plataformas de streaming favoritas al mejor precio del mercado.
+            </p>
+          </div>
+
+          <!-- Bottom Action Prompt -->
+          <div class="w-full flex flex-col items-center gap-2 mb-2">
+            <div class="shimmer-btn text-slate-950 font-bold text-xs uppercase px-6 py-2.5 rounded-full shadow-lg flex items-center gap-2 tracking-wider">
+              <span>Toca para abrir</span>
+              <i class="fa-solid fa-chevron-right text-xs"></i>
+            </div>
+            <span class="text-[10px] text-slate-500">Carta interactiva 3D</span>
+          </div>
+        </div>
+
+        <!-- COVER BACK (Inside Left Page when opened) -->
+        <div class="cover-back">
+          <div class="w-full h-full border border-sky-500/20 rounded-lg p-4 flex flex-col justify-between items-center text-center">
+            <div class="mt-4">
+              <i class="fa-solid fa-film text-3xl text-cyan-400/40 mb-3"></i>
+              <h4 class="text-sm font-bold text-cyan-200 uppercase tracking-wider">Polar Stream VIP</h4>
+              <p class="text-[11px] text-slate-400 mt-2 leading-relaxed">
+                Nuestros clientes disfrutan de la máxima velocidad, contenido ultra HD y soporte las 24 horas del día.
+              </p>
+            </div>
+            
+            <!-- Polar Bear Silhouette decorative -->
+            <div class="opacity-20 text-cyan-300 my-auto">
+              <i class="fa-solid fa-paw text-5xl"></i>
+            </div>
+
+            <div class="text-[10px] text-slate-500 border-t border-slate-800 pt-3 w-full">
+              Selecciona tu plan en la hoja derecha ▶
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT BASE CONTAINER (Contains the 8 Pages) -->
+      <div class="book-right-base">
+        <div class="spine-shadow"></div>
+
+        <!-- PAGE 1: NETFLIX -->
+        <div class="page-sheet active" id="page-1">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <span class="text-[10px] text-cyan-400 tracking-widest font-bold uppercase">Opción 01</span>
+            <span class="text-xs text-slate-500 font-mono">1 / 8</span>
+          </div>
+
+          <div class="flex flex-col items-center text-center my-auto">
+            <!-- Brand Logo / Badge -->
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-red-600 to-black p-0.5 mb-4 shadow-[0_0_25px_rgba(229,9,20,0.4)] flex items-center justify-center">
+              <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
+                <i class="fa-brands fa-netflix text-4xl text-red-600"></i>
+              </div>
+            </div>
+
+            <h3 class="text-2xl font-black text-white tracking-wide mb-1">NETFLIX</h3>
+            <p class="text-xs text-slate-400 mb-6">Películas, series ilimitadas y más.</p>
+
+            <!-- Price Container -->
+            <div class="bg-slate-900/90 border border-red-500/30 px-6 py-3 rounded-xl shadow-inner mb-2">
+              <span class="text-xs text-slate-400 uppercase tracking-wider block mb-0.5">Precio Especial</span>
+              <span class="text-4xl font-black glow-text-gold">$3 <span class="text-sm font-normal text-slate-300">/ mes</span></span>
+            </div>
+          </div>
+
+          <button onclick="nextPage()" class="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+            <span>Siguiente Servicio</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- PAGE 2: DISNEY PLUS -->
+        <div class="page-sheet" id="page-2">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <span class="text-[10px] text-cyan-400 tracking-widest font-bold uppercase">Opción 02</span>
+            <span class="text-xs text-slate-500 font-mono">2 / 8</span>
+          </div>
+
+          <div class="flex flex-col items-center text-center my-auto">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-400 p-0.5 mb-4 shadow-[0_0_25px_rgba(2,132,199,0.4)] flex items-center justify-center">
+              <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-blue-400">
+                <i class="fa-solid fa-wand-magic-sparkles text-3xl"></i>
+              </div>
+            </div>
+
+            <h3 class="text-2xl font-black text-white tracking-wide mb-1">DISNEY PLUS</h3>
+            <p class="text-xs text-slate-400 mb-6">Disney, Pixar, Marvel, Star Wars y Nat Geo.</p>
+
+            <div class="bg-slate-900/90 border border-blue-500/30 px-6 py-3 rounded-xl shadow-inner mb-2">
+              <span class="text-xs text-slate-400 uppercase tracking-wider block mb-0.5">Precio Especial</span>
+              <span class="text-4xl font-black glow-text-gold">$2 <span class="text-sm font-normal text-slate-300">/ mes</span></span>
+            </div>
+          </div>
+
+          <button onclick="nextPage()" class="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2">
+            <span>Siguiente Servicio</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- PAGE 3: HBO MAX -->
+        <div class="page-sheet" id="page-3">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <span class="text-[10px] text-cyan-400 tracking-widest font-bold uppercase">Opción 03</span>
+            <span class="text-xs text-slate-500 font-mono">3 / 8</span>
+          </div>
+
+          <div class="flex flex-col items-center text-center my-auto">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-500 p-0.5 mb-4 shadow-[0_0_25px_rgba(147,51,234,0.4)] flex items-center justify-center">
+              <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-purple-400">
+                <i class="fa-solid fa-crown text-3xl"></i>
+              </div>
+            </div>
+
+            <h3 class="text-2xl font-black text-white tracking-wide mb-1">HBO MAX</h3>
+            <p class="text-xs text-slate-400 mb-6">Las mejores series de HBO y taquillazos de WB.</p>
+
+            <div class="bg-slate-900/90 border border-purple-500/30 px-6 py-3 rounded-xl shadow-inner mb-2">
+              <span class="text-xs text-slate-400 uppercase tracking-wider block mb-0.5">Precio Especial</span>
+              <span class="text-4xl font-black glow-text-gold">$2 <span class="text-sm font-normal text-slate-300">/ mes</span></span>
+            </div>
+          </div>
+
+          <button onclick="nextPage()" class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2">
+            <span>Siguiente Servicio</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- PAGE 4: PRIME VIDEO -->
+        <div class="page-sheet" id="page-4">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <span class="text-[10px] text-cyan-400 tracking-widest font-bold uppercase">Opción 04</span>
+            <span class="text-xs text-slate-500 font-mono">4 / 8</span>
+          </div>
+
+          <div class="flex flex-col items-center text-center my-auto">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-700 p-0.5 mb-4 shadow-[0_0_25px_rgba(14,165,233,0.4)] flex items-center justify-center">
+              <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-sky-400">
+                <i class="fa-solid fa-play text-3xl"></i>
+              </div>
+            </div>
+
+            <h3 class="text-2xl font-black text-white tracking-wide mb-1">PRIME VIDEO</h3>
+            <p class="text-xs text-slate-400 mb-6">Series exclusivas y producciones originales Amazon.</p>
+
+            <div class="bg-slate-900/90 border border-sky-500/30 px-6 py-3 rounded-xl shadow-inner mb-2">
+              <span class="text-xs text-slate-400 uppercase tracking-wider block mb-0.5">Precio Especial</span>
+              <span class="text-4xl font-black glow-text-gold">$3 <span class="text-sm font-normal text-slate-300">/ mes</span></span>
+            </div>
+          </div>
+
+          <button onclick="nextPage()" class="w-full py-3 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2">
+            <span>Siguiente Servicio</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- PAGE 5: SPOTIFY -->
+        <div class="page-sheet" id="page-5">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <span class="text-[10px] text-cyan-400 tracking-widest font-bold uppercase">Opción 05</span>
+            <span class="text-xs text-slate-500 font-mono">5 / 8</span>
+          </div>
+
+          <div class="flex flex-col items-center text-center my-auto">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-700 p-0.5 mb-4 shadow-[0_0_25px_rgba(34,197,94,0.4)] flex items-center justify-center">
+              <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-green-500">
+                <i class="fa-brands fa-spotify text-4xl"></i>
+              </div>
+            </div>
+
+            <h3 class="text-2xl font-black text-white tracking-wide mb-1">SPOTIFY</h3>
+            <p class="text-xs text-slate-400 mb-6">Música sin anuncios y modo offline sin límites.</p>
+
+            <div class="bg-slate-900/90 border border-green-500/30 px-6 py-3 rounded-xl shadow-inner mb-2">
+              <span class="text-xs text-slate-400 uppercase tracking-wider block mb-0.5">Precio Especial</span>
+              <span class="text-4xl font-black glow-text-gold">$2 <span class="text-sm font-normal text-slate-300">/ mes</span></span>
+            </div>
+          </div>
+
+          <button onclick="nextPage()" class="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2">
+            <span>Siguiente Servicio</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- PAGE 6: CRUNCHYROLL -->
+        <div class="page-sheet" id="page-6">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <span class="text-[10px] text-cyan-400 tracking-widest font-bold uppercase">Opción 06</span>
+            <span class="text-xs text-slate-500 font-mono">6 / 8</span>
+          </div>
+
+          <div class="flex flex-col items-center text-center my-auto">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 p-0.5 mb-4 shadow-[0_0_25px_rgba(249,115,22,0.4)] flex items-center justify-center">
+              <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-orange-500">
+                <i class="fa-solid fa-dragon text-3xl"></i>
+              </div>
+            </div>
+
+            <h3 class="text-2xl font-black text-white tracking-wide mb-1">CRUNCHYROLL</h3>
+            <p class="text-xs text-slate-400 mb-6">El catálogo de anime más grande del mundo.</p>
+
+            <div class="bg-slate-900/90 border border-orange-500/30 px-6 py-3 rounded-xl shadow-inner mb-2">
+              <span class="text-xs text-slate-400 uppercase tracking-wider block mb-0.5">Precio Especial</span>
+              <span class="text-4xl font-black glow-text-gold">$2 <span class="text-sm font-normal text-slate-300">/ mes</span></span>
+            </div>
+          </div>
+
+          <button onclick="nextPage()" class="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2">
+            <span>Siguiente Servicio</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- PAGE 7: DAZN -->
+        <div class="page-sheet" id="page-7">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <span class="text-[10px] text-cyan-400 tracking-widest font-bold uppercase">Opción 07</span>
+            <span class="text-xs text-slate-500 font-mono">7 / 8</span>
+          </div>
+
+          <div class="flex flex-col items-center text-center my-auto">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-slate-200 to-slate-500 p-0.5 mb-4 shadow-[0_0_25px_rgba(255,255,255,0.2)] flex items-center justify-center">
+              <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-white">
+                <i class="fa-solid fa-futbol text-3xl"></i>
+              </div>
+            </div>
+
+            <h3 class="text-2xl font-black text-white tracking-wide mb-1">DAZN</h3>
+            <p class="text-xs text-slate-400 mb-6">Deportes en directo, fútbol, motor y combate.</p>
+
+            <div class="bg-slate-900/90 border border-slate-500/30 px-6 py-3 rounded-xl shadow-inner mb-2">
+              <span class="text-xs text-slate-400 uppercase tracking-wider block mb-0.5">Precio Especial</span>
+              <span class="text-4xl font-black glow-text-gold">$3 <span class="text-sm font-normal text-slate-300">/ mes</span></span>
+            </div>
+          </div>
+
+          <button onclick="nextPage()" class="w-full py-3 bg-gradient-to-r from-slate-700 to-slate-800 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg hover:brightness-125 transition-all flex items-center justify-center gap-2">
+            <span>Última Opción</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- PAGE 8: DISNEY PLUS + ESPN -->
+        <div class="page-sheet" id="page-8">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <span class="text-[10px] text-yellow-400 tracking-widest font-bold uppercase">COMBO ESTRELLA 08</span>
+            <span class="text-xs text-slate-500 font-mono">8 / 8</span>
+          </div>
+
+          <div class="flex flex-col items-center text-center my-auto">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-red-600 p-0.5 mb-3 shadow-[0_0_30px_rgba(245,158,11,0.5)] flex items-center justify-center">
+              <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-amber-400">
+                <i class="fa-solid fa-trophy text-3xl"></i>
+              </div>
+            </div>
+
+            <h3 class="text-xl font-black text-white tracking-wide mb-1">DISNEY+ <span class="text-red-500">+</span> ESPN</h3>
+            <p class="text-xs text-slate-400 mb-4">El combo perfecto de entretenimiento y todo el deporte.</p>
+
+            <div class="bg-slate-900/90 border border-amber-500/40 px-6 py-3 rounded-xl shadow-inner mb-2">
+              <span class="text-xs text-amber-300 uppercase tracking-wider block mb-0.5 font-bold">Mega Combo</span>
+              <span class="text-4xl font-black glow-text-gold">$4 <span class="text-sm font-normal text-slate-300">/ mes</span></span>
+            </div>
+          </div>
+
+          <!-- Final Click Button Closes the Book -->
+          <button onclick="nextPage()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-red-500 to-amber-600 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-xl hover:brightness-110 transition-all flex items-center justify-center gap-2 animate-bounce">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Finalizar y Volver a Portada</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- BOTTOM FOOTER CONTROLS -->
+  <footer class="w-full max-w-md z-10 flex items-center justify-center gap-3">
+    <button id="prevBtn" onclick="prevPage()" class="opacity-0 pointer-events-none transition-all duration-300 bg-slate-900/80 hover:bg-slate-900 text-slate-200 px-4 py-2 rounded-full text-xs font-semibold border border-slate-700/60 shadow-lg flex items-center gap-2">
+      <i class="fa-solid fa-chevron-left"></i>
+      <span>Anterior</span>
+    </button>
+
+    <button id="closeBtn" onclick="closeCover()" class="opacity-0 pointer-events-none transition-all duration-300 bg-slate-900/80 hover:bg-slate-900 text-rose-400 px-4 py-2 rounded-full text-xs font-semibold border border-rose-500/30 shadow-lg flex items-center gap-2">
+      <i class="fa-solid fa-book"></i>
+      <span>Cerrar Menú</span>
+    </button>
+  </footer>
+
+  <script>
+    let isOpen = false;
+    let currentPage = 1;
+    const totalPages = 8;
+
+    const bookWrapper = document.getElementById('bookWrapper');
+    const pageIndicator = document.getElementById('pageIndicator');
+    const currentPageNum = document.getElementById('currentPageNum');
+    const prevBtn = document.getElementById('prevBtn');
+    const closeBtn = document.getElementById('closeBtn');
+
+    // Opens the book cover and aligns to right page center
+    function toggleCover() {
+      if (!isOpen) {
+        openCover();
+      }
+    }
+
+    function openCover() {
+      isOpen = true;
+      bookWrapper.classList.add('is-open');
+      
+      // Show page indicator & controls
+      pageIndicator.classList.remove('opacity-0');
+      closeBtn.classList.remove('opacity-0', 'pointer-events-none');
+      updateNavState();
+    }
+
+    function closeCover() {
+      isOpen = false;
+      bookWrapper.classList.remove('is-open');
+      
+      // Reset to page 1 after closing
+      setTimeout(() => {
+        setPage(1);
+      }, 400);
+
+      // Hide page indicator & controls
+      pageIndicator.classList.add('opacity-0');
+      closeBtn.classList.add('opacity-0', 'pointer-events-none');
+      prevBtn.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function nextPage() {
+      if (!isOpen) return;
+      
+      if (currentPage < totalPages) {
+        setPage(currentPage + 1);
+      } else {
+        // If clicking on 8th page, close the whole menu back to front cover
+        closeCover();
+      }
+    }
+
+    function prevPage() {
+      if (!isOpen) return;
+      if (currentPage > 1) {
+        setPage(currentPage - 1);
+      }
+    }
+
+    function setPage(pageNum) {
+      // Remove active class from previous page
+      const currentSheet = document.getElementById(`page-${currentPage}`);
+      if (currentSheet) {
+        currentSheet.classList.remove('active');
+      }
+
+      currentPage = pageNum;
+      currentPageNum.textContent = currentPage;
+
+      // Add active class to new page
+      const newSheet = document.getElementById(`page-${currentPage}`);
+      if (newSheet) {
+        newSheet.classList.add('active');
+      }
+
+      updateNavState();
+    }
+
+    function updateNavState() {
+      if (currentPage > 1 && isOpen) {
+        prevBtn.classList.remove('opacity-0', 'pointer-events-none');
+      } else {
+        prevBtn.classList.add('opacity-0', 'pointer-events-none');
+      }
+    }
+  </script>
+</body>
+</html>
